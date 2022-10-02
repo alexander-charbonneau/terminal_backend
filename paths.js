@@ -1,20 +1,45 @@
 const express = require("express");
 const router = express.Router();
+const postgres = require("./helpers/db");
+require("dotenv").config();
 
-// middleware that is specific to this router
+// Router middleware fired on every query
 router.use((req, res, next) => {
   console.log("Time: ", Date.now());
   next();
 });
 
-// define the home page route
 router.get("/", (req, res) => {
 console.log("ehpeei basepath queried...")
 });
-// define the about route
-router.get("/testy", (req, res) => {
+
+router.post("/register", async (req, res) => {
+  const userExist = await postgres.query(
+    'SELECT username from "user" WHERE username=$1',
+    [req.body.userName]
+  );
+  if (userExist === 0){
+    const DATE = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const insertUserQuery = await postgres.query(
+      'INSERT INTO "user"(username, password, created_on, last_login) values($1,$2,$3,$4) RETURNING username',
+      [req.body.userName,req.body.userPass,DATE,DATE]
+    );
+    console.log(insertUserQuery);
+    res.json({body:"Password set!"});
+    console.log("Register POST request received...");
+  } else {
+    res.json({body:'Username already exists!' + "\n" + "\n" + 'Please use "login" instead of "register".'});
+    console.log("Duplicate user attempting signup...");
+  }
+});
+
+router.post("/login", async (req,res) => {
+  
+})
+
+router.get("/test", (req, res) => {
   res.json({body:"Fuck you!"});
-  console.log("Testy queried...");
+  console.log("Test queried...");
 });
 
 module.exports = router;
