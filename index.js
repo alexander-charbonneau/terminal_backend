@@ -4,7 +4,6 @@ const helmet = require("helmet");// Middleware for automatic http headers
 const cors = require("cors");// Middleware to automatically enable CORS
 const paths = require("./paths");
 const session = require("express-session");
-const server = require("http").createServer(backend);
 require("dotenv").config();
 
 // Constants
